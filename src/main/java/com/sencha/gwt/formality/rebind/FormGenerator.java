@@ -1,6 +1,8 @@
 package com.sencha.gwt.formality.rebind;
 
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.ext.Generator;
@@ -67,6 +69,9 @@ public class FormGenerator extends Generator {
       }
     }
 
+    // expose the root field
+    sw.println("public %1$s asWidget() {return _root;}", Widget.class.getName());
+
 
     // constructor to assemble the fields
     sw.println("public %1$s() {", simpleSourceName);
@@ -74,11 +79,46 @@ public class FormGenerator extends Generator {
 
     // Instantiate the root container
     sw.println("this._root = GWT.create(%1$s.class);", FlowLayoutContainer.class.getName());
-    for (JMethod m : toGenerate.getOverridableMethods()) {
-      if (m.getName().equals("asWidget")) {
+
+    // Look for methods again, this time in order or declaration (starting at subtype)
+    // to append the form in order it was declared
+    Set<JMethod> visited = new HashSet<JMethod>();
+    initForMethodsInType(logger, oracle, toGenerate, sw, visited);
+    for (JClassType extended : toGenerate.getFlattenedSupertypeHierarchy()) {
+      initForMethodsInType(logger, oracle, extended, sw, visited);
+    }
+    sw.outdent();
+    sw.println("}");
+
+    // Commit and return the class
+    sw.commit(logger);
+    return factory.getCreatedClassName();
+  }
+
+  /**
+   * Initialize details required for each method in the given type
+   * @param logger
+   * @param oracle
+   * @param type
+   * @param sw
+   * @param visited 
+   */
+  private void initForMethodsInType(TreeLogger logger, TypeOracle oracle, JClassType type, SourceWriter sw, Set<JMethod> visited) {
+    JClassType editorType = oracle.findType(Editor.class.getName());
+    for (JMethod m : type.getMethods()) {
+      if (visited.contains(m)) {
         continue;
       }
+
+      visited.add(m);
+
+      if (m.getName().equals("asWidget")) {
+        // Nothing to do, carry on
+        continue;
+      }
+
       logger.log(Type.DEBUG, "Appending " + m.getName());
+
       JClassType editor = m.getReturnType().isClassOrInterface();
       assert editor != null && editor.isAssignableTo(editorType);//not certain we need to take this much care
 
@@ -96,15 +136,6 @@ public class FormGenerator extends Generator {
         sw.println("_root.add(new %1$s(this.%2$s.asWidget(), \"%3$s\"));", FieldLabel.class.getName(), m.getName(), escape(labelExpr));
       }
     }
-    sw.outdent();
-    sw.println("}");
-
-    // expose the root field
-    sw.println("public %1$s asWidget() {return _root;}", Widget.class.getName());
-
-    sw.commit(logger);
-
-    return factory.getCreatedClassName();
   }
 
 }
