@@ -3,6 +3,8 @@ package com.sencha.gwt.formality.gxt.client;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.editor.client.SimpleBeanEditorDriver;
 import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.ui.HasOneWidget;
+import com.google.gwt.user.client.ui.IndexedPanel;
 import com.sencha.gwt.formality.client.Address;
 import com.sencha.gwt.formality.client.Form;
 import com.sencha.gwt.formality.client.Person;
@@ -28,12 +30,15 @@ public class GwtTestSimpleGxtForm extends GWTTestCase {
     AddressForm shippingAddress();
   }
 
-  public interface AddressForm extends Form<Address> {
+  public interface CityAndState extends Form<Address> {
+    TextField city();
+    TextField state();
+  }
+
+  public interface AddressForm extends CityAndState, Form<Address> {
     TextField line1();
     TextField line2();
 
-    TextField city();
-    TextField state();
   }
 
   public void testBindPerson() {
@@ -48,7 +53,24 @@ public class GwtTestSimpleGxtForm extends GWTTestCase {
     d.initialize(form);
 
     d.edit(p);
+  }
 
+  public void testWidgetMakeup() {
+    PersonForm form = GWT.create(PersonForm.class);
 
+    IndexedPanel.ForIsWidget root = (IndexedPanel.ForIsWidget) form.asWidget();
+
+    assertEquals(form.name(), ((HasOneWidget) root.getWidget(0)).getWidget());
+    assertEquals(form.dob(), ((HasOneWidget) root.getWidget(1)).getWidget());
+    assertEquals(form.mailingAddress().asWidget(), ((HasOneWidget) root.getWidget(2)).getWidget());
+    assertEquals(form.shippingAddress().asWidget(), ((HasOneWidget) root.getWidget(3)).getWidget());
+
+    AddressForm address = form.shippingAddress();
+    root = (IndexedPanel.ForIsWidget) address.asWidget();
+
+    assertEquals(address.line1(), ((HasOneWidget) root.getWidget(0)).getWidget());
+    assertEquals(address.line2(), ((HasOneWidget) root.getWidget(1)).getWidget());
+    assertEquals(address.city(), ((HasOneWidget) root.getWidget(2)).getWidget());
+    assertEquals(address.state(), ((HasOneWidget) root.getWidget(3)).getWidget());
   }
 }
