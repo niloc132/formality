@@ -127,13 +127,20 @@ public class FormGenerator extends Generator {
 
       // look for the label annotation, if it exists
       Label l = m.getAnnotation(Label.class);
-      String labelExpr = l == null ? m.getName() : l.value();
+      String labelExpr = l == null ? null : l.value();
 
       // Check to see if it implements IsWidget, if not, probably just an editor adapter
       if (editor.isAssignableTo(oracle.findType(IsWidget.class.getName()))) {
         // Optionally wrap the field
+        final String wrappedExpr;
+        if (labelExpr != null) {
+          wrappedExpr = String.format("new %1$s(this.%2$s.asWidget(), \"%3$s\")", FieldLabel.class.getName(), m.getName(), escape(labelExpr));
+        } else {
+          wrappedExpr = m.getName();
+        }
+
         // Then append it to the container
-        sw.println("_root.add(new %1$s(this.%2$s.asWidget(), \"%3$s\"));", FieldLabel.class.getName(), m.getName(), escape(labelExpr));
+        sw.println("_root.add(%1$s);", wrappedExpr);
       }
     }
   }

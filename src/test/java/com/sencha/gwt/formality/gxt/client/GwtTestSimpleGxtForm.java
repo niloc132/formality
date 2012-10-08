@@ -22,8 +22,10 @@ public class GwtTestSimpleGxtForm extends GWTTestCase {
   public interface Driver extends SimpleBeanEditorDriver<Person, PersonForm> {}
 
   public interface PersonForm extends Form<Person> {
+    @Label("Name")
     TextField name();
 
+    @Label("Birthdate")
     DateField dob();
 
     AddressForm mailingAddress();
@@ -31,12 +33,16 @@ public class GwtTestSimpleGxtForm extends GWTTestCase {
   }
 
   public interface CityAndState extends Form<Address> {
+    @Label("City")
     TextField city();
+    @Label("State")
     TextField state();
   }
 
   public interface AddressForm extends CityAndState, Form<Address> {
+    @Label("Address")
     TextField line1();
+    @Label("")
     TextField line2();
 
   }
@@ -60,16 +66,24 @@ public class GwtTestSimpleGxtForm extends GWTTestCase {
 
     IndexedPanel.ForIsWidget root = (IndexedPanel.ForIsWidget) form.asWidget();
 
+    //wrapped, labels
     assertEquals(form.name(), ((HasOneWidget) root.getWidget(0)).getWidget());
     assertEquals(form.dob(), ((HasOneWidget) root.getWidget(1)).getWidget());
-    assertEquals(form.mailingAddress().asWidget(), ((HasOneWidget) root.getWidget(2)).getWidget());
-    assertEquals(form.shippingAddress().asWidget(), ((HasOneWidget) root.getWidget(3)).getWidget());
+    
+    //unwrapped
+    assertEquals(form.mailingAddress().asWidget(), root.getWidget(2));
+    assertEquals(form.shippingAddress().asWidget(), root.getWidget(3));
 
     AddressForm address = form.shippingAddress();
     root = (IndexedPanel.ForIsWidget) address.asWidget();
 
+    //wrapped, label
     assertEquals(address.line1(), ((HasOneWidget) root.getWidget(0)).getWidget());
+    
+    //wrapped, no label
     assertEquals(address.line2(), ((HasOneWidget) root.getWidget(1)).getWidget());
+    
+    //wrapped, subclass, labels
     assertEquals(address.city(), ((HasOneWidget) root.getWidget(2)).getWidget());
     assertEquals(address.state(), ((HasOneWidget) root.getWidget(3)).getWidget());
   }
