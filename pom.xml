@@ -7,8 +7,8 @@
   <name>Formality</name>
   <description>Declarative Form building for GWT Editors</description>
   <properties>
-    <gwt.version>2.5.0-rc2</gwt.version>
-    <gwt.plugin.version>2.5.0-rc1</gwt.plugin.version>
+    <gwt.version>2.5.0</gwt.version>
+    <gwt.plugin.version>2.5.0</gwt.plugin.version>
     <gxt.version>3.0.1</gxt.version>
 
     <gwt.test.mode>htmlunit</gwt.test.mode>

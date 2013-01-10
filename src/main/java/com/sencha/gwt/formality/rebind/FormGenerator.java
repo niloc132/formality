@@ -14,6 +14,7 @@ import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.JMethod;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.editor.client.Editor;
+import com.google.gwt.editor.client.IsEditor;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.rg.CssResourceGenerator;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -43,6 +44,7 @@ public class FormGenerator extends Generator {
     TypeOracle oracle = context.getTypeOracle();
 
     JClassType editorType = oracle.findType(Editor.class.getName());
+    JClassType isEditorType = oracle.findType(IsEditor.class.getName());
     JClassType toGenerate = oracle.findType(typeName);
 
     String packageName = toGenerate.getPackage().getName();
@@ -72,7 +74,7 @@ public class FormGenerator extends Generator {
     for (JMethod m : toGenerate.getOverridableMethods()) {
       assert m.getParameters().length == 0;
       JClassType editor = m.getReturnType().isClassOrInterface();
-      if (editor != null && editor.isAssignableTo(editorType)) {
+      if (editor != null && (editor.isAssignableTo(editorType) || editor.isAssignableTo(isEditorType))) {
         // field
         sw.println("private %1$s %2$s;", editor.getParameterizedQualifiedSourceName(), m.getName());//field
 
