@@ -44,6 +44,41 @@
           <target>${java.version}</target>
         </configuration>
       </plugin>
+      <!-- Attach javadoc and source artifacts to the build -->
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.7</version>
+        <configuration>
+          <links>
+            <link>http://google-web-toolkit.googlecode.com/svn/javadoc/2.5/</link>
+            <link>http://dev.sencha.com/deploy/gxt-3.0.1/javadoc/gxt/</link>
+          </links>
+          <show>public</show>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <!-- gwt-based unit tests -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
